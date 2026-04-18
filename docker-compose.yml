@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    build: ./src/wordpress
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+    volumes:
+      - wp_data:/var/www/html
+
+  frontend:
+    build: ./src/frontend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NUXT_PUBLIC_WORDPRESS_URL: ${NUXT_PUBLIC_WORDPRESS_URL}
+    depends_on:
+      - wordpress
+
+  nginx:
+    build: ./src/nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - wordpress
+
+volumes:
+  db_data:
+  wp_data:

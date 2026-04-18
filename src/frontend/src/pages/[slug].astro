@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import BlockRenderer from '../components/BlockRenderer.astro'
+
+const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
+
+interface PayloadPage {
+  id: string
+  title: string
+  slug: string
+  layout: Record<string, unknown>[]
+}
+
+export async function getStaticPaths() {
+  const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
+  try {
+    const res = await fetch(`${CMS_URL}/api/pages?limit=100`)
+    if (!res.ok) return []
+    const data = await res.json()
+    const pages: PayloadPage[] = data.docs ?? []
+    return pages
+      .filter((p) => p.slug && p.slug !== 'home')
+      .map((p) => ({ params: { slug: p.slug } }))
+  } catch {
+    return []
+  }
+}
+
+const { slug } = Astro.params
+
+let page: PayloadPage | null = null
+let error: string | null = null
+
+try {
+  const res = await fetch(`${CMS_URL}/api/pages?where[slug][equals]=${slug}&limit=1`)
+  if (res.ok) {
+    const data = await res.json()
+    page = data.docs?.[0] ?? null
+  } else {
+    error = `CMS returned ${res.status}`
+  }
+} catch (e) {
+  error = `Could not connect to CMS: ${e instanceof Error ? e.message : String(e)}`
+}
+
+if (!page && !error) {
+  return Astro.redirect('/404')
+}
+
+const blocks = page?.layout ?? []
+---
+
+<BaseLayout title={page?.title ?? slug ?? 'wpfolio'}>
+  {error && (
+    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+      <div class="text-center p-8 bg-white rounded-xl shadow max-w-md">
+        <div class="text-4xl mb-4">🔌</div>
+        <h1 class="text-xl font-semibold text-gray-800 mb-2">CMS not reachable</h1>
+        <p class="text-gray-500 text-sm">{error}</p>
+      </div>
+    </div>
+  )}
+
+  {!error && blocks.length === 0 && (
+    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+      <div class="text-center p-8 bg-white rounded-xl shadow max-w-md">
+        <div class="text-4xl mb-4">😶</div>
+        <h1 class="text-xl font-semibold text-gray-800 mb-2">No content yet</h1>
+        <p class="text-gray-500 text-sm">
+          Add some blocks to the <code class="bg-gray-100 px-1 rounded">{slug}</code> page in the CMS.
+        </p>
+      </div>
+    </div>
+  )}
+
+  {!error && blocks.length > 0 && (
+    <BlockRenderer blocks={blocks as unknown as Parameters<typeof BlockRenderer>[0]['blocks']} />
+  )}
+</BaseLayout>

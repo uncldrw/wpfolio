@@ -7,6 +7,9 @@ import { CtaBlock } from '../blocks/CtaBlock'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  access: {
+    read: () => true,
+  },
   admin: {
     useAsTitle: 'title',
   },

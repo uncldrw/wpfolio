@@ -6,6 +6,10 @@ import { Pages } from './collections/Pages'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 
+const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:4321')
+  .split(',')
+  .map((o) => o.trim())
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -13,6 +17,8 @@ export default buildConfig({
   collections: [Posts, Pages, Media, Users],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'dev-secret-change-me',
+  cors: allowedOrigins,
+  csrf: allowedOrigins,
   typescript: {
     outputFile: './src/payload-types.ts',
   },

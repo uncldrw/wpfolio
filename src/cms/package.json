@@ -1,0 +1,27 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "description": "wpfolio CMS — Payload v3",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "generate:types": "payload generate:types"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "*",
+    "@payloadcms/next": "*",
+    "@payloadcms/richtext-lexical": "*",
+    "next": "15",
+    "payload": "^3.83.0",
+    "react": "^19",
+    "react-dom": "^19",
+    "sharp": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { RootLayout, metadata as rootMetadata } from '@payloadcms/next/layouts'
 import configPromise from '@payload-config'
 import React from 'react'
-import '@payloadcms/next/dist/prod/styles.css'
 
 export const metadata: Metadata = rootMetadata
 

@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import React from 'react'
 import { serverFunction } from './serverFunctions'
 import { importMap } from './importMap'
+import '@payloadcms/ui/styles.css'
 
 export const metadata: Metadata = rootMetadata
 

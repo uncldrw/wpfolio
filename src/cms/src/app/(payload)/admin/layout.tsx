@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { RootLayout, metadata as rootMetadata } from '@payloadcms/next/layouts'
-import { handleServerFunctions } from '@payloadcms/next/utilities'
+import { RootLayout, metadata as rootMetadata, handleServerFunctions } from '@payloadcms/next/layouts'
 import configPromise from '@payload-config'
 import React from 'react'
 

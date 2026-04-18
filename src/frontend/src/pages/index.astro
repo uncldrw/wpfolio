@@ -60,6 +60,6 @@ const blocks = page?.layout ?? []
   )}
 
   {!error && blocks.length > 0 && (
-    <BlockRenderer blocks={blocks as Parameters<typeof BlockRenderer>[0]['blocks']} />
+    <BlockRenderer blocks={blocks as unknown as Parameters<typeof BlockRenderer>[0]['blocks']} />
   )}
 </BaseLayout>

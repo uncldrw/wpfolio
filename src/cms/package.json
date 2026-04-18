@@ -1,7 +1,7 @@
 {
   "name": "cms",
   "version": "1.0.0",
-  "description": "wpfolio CMS — Payload v3",
+  "description": "wpfolio CMS \u2014 Payload v3",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,7 +16,8 @@
     "payload": "^3.83.0",
     "react": "^19",
     "react-dom": "^19",
-    "sharp": "*"
+    "sharp": "*",
+    "graphql": "*"
   },
   "devDependencies": {
     "@types/node": "^22",

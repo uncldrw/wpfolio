@@ -1,0 +1,88 @@
+---
+import HeroSection from './blocks/HeroSection.astro';
+import AboutSection from './blocks/AboutSection.astro';
+import FeaturesSection from './blocks/FeaturesSection.astro';
+import TestimonialsSection from './blocks/TestimonialsSection.astro';
+import CtaSection from './blocks/CtaSection.astro';
+
+type Variant = 'primary' | 'secondary' | 'dark';
+
+interface HeroBlock {
+  blockType: 'hero';
+  headline: string;
+  subheadline: string;
+  ctaLabel: string;
+  ctaLink: string;
+  backgroundImage?: string;
+}
+
+interface AboutBlock {
+  blockType: 'about';
+  title: string;
+  content: string;
+  image?: string;
+  imagePosition?: 'left' | 'right';
+}
+
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface FeaturesBlock {
+  blockType: 'features';
+  title: string;
+  subtitle?: string;
+  features: Feature[];
+}
+
+interface Testimonial {
+  name: string;
+  role: string;
+  quote: string;
+  avatar?: string;
+}
+
+interface TestimonialsBlock {
+  blockType: 'testimonials';
+  title: string;
+  testimonials: Testimonial[];
+}
+
+interface CtaBlock {
+  blockType: 'cta';
+  headline: string;
+  subheadline?: string;
+  buttonLabel: string;
+  buttonLink: string;
+  variant?: Variant;
+}
+
+type Block = HeroBlock | AboutBlock | FeaturesBlock | TestimonialsBlock | CtaBlock;
+
+interface Props {
+  blocks: Block[];
+}
+
+const { blocks } = Astro.props;
+---
+
+{blocks.map((block) => {
+  if (block.blockType === 'hero') {
+    return <HeroSection {...block} />;
+  }
+  if (block.blockType === 'about') {
+    return <AboutSection {...block} />;
+  }
+  if (block.blockType === 'features') {
+    return <FeaturesSection {...block} />;
+  }
+  if (block.blockType === 'testimonials') {
+    return <TestimonialsSection {...block} />;
+  }
+  if (block.blockType === 'cta') {
+    return <CtaSection {...block} />;
+  }
+  return null;
+})}

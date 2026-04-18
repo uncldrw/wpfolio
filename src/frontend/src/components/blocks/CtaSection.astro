@@ -1,0 +1,43 @@
+---
+type Variant = 'primary' | 'secondary' | 'dark';
+
+interface Props {
+  headline: string;
+  subheadline?: string;
+  buttonLabel: string;
+  buttonLink: string;
+  variant?: Variant;
+}
+
+const { headline, subheadline, buttonLabel, buttonLink, variant = 'primary' } = Astro.props;
+
+const variantClasses: Record<Variant, { section: string; button: string }> = {
+  primary: {
+    section: 'bg-indigo-600 text-white',
+    button: 'bg-white text-indigo-700 hover:bg-indigo-50',
+  },
+  secondary: {
+    section: 'bg-gray-100 text-gray-900',
+    button: 'bg-indigo-600 text-white hover:bg-indigo-700',
+  },
+  dark: {
+    section: 'bg-gray-900 text-white',
+    button: 'bg-white text-gray-900 hover:bg-gray-100',
+  },
+};
+
+const classes = variantClasses[variant];
+---
+
+<section class={`py-24 ${classes.section}`}>
+  <div class="mx-auto max-w-3xl px-6 text-center">
+    <h2 class="mb-4 text-4xl font-bold">{headline}</h2>
+    {subheadline && <p class="mb-10 text-xl opacity-80">{subheadline}</p>}
+    <a
+      href={buttonLink}
+      class={`inline-block rounded-full px-10 py-4 text-lg font-semibold shadow transition ${classes.button}`}
+    >
+      {buttonLabel}
+    </a>
+  </div>
+</section>

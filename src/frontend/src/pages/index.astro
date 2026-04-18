@@ -1,17 +1,65 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import BlockRenderer from '../components/BlockRenderer.astro'
 
+const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
+
+interface PayloadPage {
+  id: string
+  title: string
+  slug: string
+  layout: Record<string, unknown>[]
+}
+
+let page: PayloadPage | null = null
+let error: string | null = null
+
+try {
+  const res = await fetch(`${CMS_URL}/api/pages?where[slug][equals]=home&limit=1`)
+  if (res.ok) {
+    const data = await res.json()
+    page = data.docs?.[0] ?? null
+  } else {
+    error = `CMS returned ${res.status}`
+  }
+} catch (e) {
+  error = `Could not connect to CMS: ${e instanceof Error ? e.message : String(e)}`
+}
+
+const blocks = page?.layout ?? []
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={page?.title ?? 'wpfolio'}>
+  {error && (
+    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+      <div class="text-center p-8 bg-white rounded-xl shadow max-w-md">
+        <div class="text-4xl mb-4">🔌</div>
+        <h1 class="text-xl font-semibold text-gray-800 mb-2">CMS not reachable</h1>
+        <p class="text-gray-500 text-sm">{error}</p>
+        <p class="mt-4 text-xs text-gray-400">Make sure Payload CMS is running at <code class="bg-gray-100 px-1 rounded">{CMS_URL}</code></p>
+      </div>
+    </div>
+  )}
+
+  {!error && blocks.length === 0 && (
+    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+      <div class="text-center p-8 bg-white rounded-xl shadow max-w-md">
+        <div class="text-4xl mb-4">🌱</div>
+        <h1 class="text-xl font-semibold text-gray-800 mb-2">No content yet</h1>
+        <p class="text-gray-500 text-sm">
+          Create a page with slug <code class="bg-gray-100 px-1 rounded">home</code> in Payload CMS and add some blocks.
+        </p>
+        <a
+          href="http://localhost:3000/admin"
+          class="inline-block mt-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
+        >
+          Open CMS Admin →
+        </a>
+      </div>
+    </div>
+  )}
+
+  {!error && blocks.length > 0 && (
+    <BlockRenderer blocks={blocks as Parameters<typeof BlockRenderer>[0]['blocks']} />
+  )}
+</BaseLayout>

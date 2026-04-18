@@ -1,0 +1,32 @@
+---
+interface Props {
+  title: string;
+  content: string;
+  image?: string;
+  imagePosition?: 'left' | 'right';
+}
+
+const { title, content, image, imagePosition = 'right' } = Astro.props;
+---
+
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-6">
+    <div
+      class={`flex flex-col gap-12 md:flex-row md:items-center ${imagePosition === 'left' ? 'md:flex-row-reverse' : ''}`}
+    >
+      <div class="flex-1">
+        <h2 class="mb-6 text-4xl font-bold text-gray-900">{title}</h2>
+        <div class="prose prose-lg max-w-none text-gray-600" set:html={content} />
+      </div>
+      {image && (
+        <div class="flex-1">
+          <img
+            src={image}
+            alt={title}
+            class="w-full rounded-2xl object-cover shadow-lg"
+          />
+        </div>
+      )}
+    </div>
+  </div>
+</section>

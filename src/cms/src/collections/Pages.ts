@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { seoFields } from '../fields/seoFields'
 import { HeroBlock } from '../blocks/HeroBlock'
 import { AboutBlock } from '../blocks/AboutBlock'
 import { FeaturesBlock } from '../blocks/FeaturesBlock'
@@ -30,6 +31,7 @@ export const Pages: CollectionConfig = {
       type: 'blocks',
       blocks: [HeroBlock, AboutBlock, FeaturesBlock, TestimonialsBlock, CtaBlock],
     },
+    seoFields,
     {
       name: 'status',
       type: 'select',

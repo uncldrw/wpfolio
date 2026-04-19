@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { seoFields } from '../fields/seoFields'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -37,6 +38,7 @@ export const Posts: CollectionConfig = {
       name: 'publishedAt',
       type: 'date',
     },
+    seoFields,
     {
       name: 'status',
       type: 'select',

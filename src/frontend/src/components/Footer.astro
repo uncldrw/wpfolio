@@ -1,0 +1,107 @@
+---
+/**
+ * Footer Component
+ * Fetches footer navigation from Payload CMS `menus` collection (label: "footer").
+ */
+
+const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000';
+
+interface NavItem {
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+}
+
+interface FooterConfig {
+  copyright?: string;
+  tagline?: string;
+  socialLinks?: { icon: string; url: string; label: string }[];
+  items?: NavItem[];
+}
+
+let footerData: FooterConfig = {};
+let footerLinks: NavItem[] = [];
+
+try {
+  const res = await fetch(`${CMS_URL}/api/menus?where[label][equals]=footer&limit=1`);
+  if (res.ok) {
+    const data = await res.json();
+    const menu = data.docs?.[0];
+    if (menu) {
+      footerLinks = menu.items ?? [];
+      footerData = {
+        copyright: menu.copyright,
+        tagline: menu.tagline,
+        socialLinks: menu.socialLinks ?? [],
+      };
+    }
+  }
+} catch {
+  // CMS unavailable
+}
+
+const year = new Date().getFullYear();
+const copyright = footerData.copyright ?? `© ${year} wpfolio. Alle Rechte vorbehalten.`;
+---
+
+<footer class="bg-gray-900 text-gray-300 pt-12 pb-6 mt-auto">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-10">
+      <!-- Brand -->
+      <div class="max-w-xs">
+        <a href="/" class="flex items-center gap-2 font-bold text-xl text-white tracking-tight mb-3">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="28" height="28" rx="8" fill="#4F46E5"/>
+            <path d="M8 20L14 8L20 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 16H18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          wpfolio
+        </a>
+        {footerData.tagline && (
+          <p class="text-sm text-gray-400 leading-relaxed">{footerData.tagline}</p>
+        )}
+      </div>
+
+      <!-- Footer Links -->
+      {footerLinks.length > 0 && (
+        <nav class="flex flex-wrap gap-x-8 gap-y-3" aria-label="Footer navigation">
+          {footerLinks.map((item) => (
+            <a
+              href={item.url}
+              target={item.openInNewTab ? '_blank' : undefined}
+              rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+              class="text-sm text-gray-400 hover:text-white transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      )}
+
+      <!-- Social Links -->
+      {footerData.socialLinks && footerData.socialLinks.length > 0 && (
+        <div class="flex items-center gap-4">
+          {footerData.socialLinks.map((social) => (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.label}
+              class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-700 hover:bg-indigo-600 transition-colors"
+            >
+              <span class="text-sm">{social.icon}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+      <p>{copyright}</p>
+      <div class="flex gap-4">
+        <a href="/impressum" class="hover:text-gray-300 transition-colors">Impressum</a>
+        <a href="/datenschutz" class="hover:text-gray-300 transition-colors">Datenschutz</a>
+      </div>
+    </div>
+  </div>
+</footer>

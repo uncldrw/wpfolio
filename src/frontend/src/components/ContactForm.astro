@@ -1,0 +1,289 @@
+---
+/**
+ * ContactForm Component
+ * Client-side validation, success/error state, submits to /api/contact.
+ */
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  successMessage?: string;
+}
+
+const {
+  title = 'Kontakt aufnehmen',
+  subtitle = 'Ich freue mich über deine Nachricht. Füll das Formular aus und ich melde mich schnellstmöglich.',
+  successMessage = 'Deine Nachricht wurde erfolgreich übermittelt. Ich melde mich in Kürze!',
+} = Astro.props;
+---
+
+<section class="py-20 bg-gray-50" id="kontakt">
+  <div class="mx-auto max-w-2xl px-6">
+    <div class="mb-10 text-center">
+      <h2 class="text-4xl font-bold text-gray-900">{title}</h2>
+      {subtitle && <p class="mt-4 text-lg text-gray-500">{subtitle}</p>}
+    </div>
+
+    <!-- Success State -->
+    <div
+      id="form-success"
+      class="hidden rounded-2xl bg-green-50 border border-green-200 p-8 text-center"
+      role="alert"
+      aria-live="polite"
+    >
+      <div class="text-4xl mb-4">✅</div>
+      <p class="text-green-800 font-medium">{successMessage}</p>
+      <button
+        id="form-reset-btn"
+        class="mt-6 text-sm text-green-700 underline hover:no-underline"
+      >
+        Weitere Nachricht senden
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form
+      id="contact-form"
+      novalidate
+      class="bg-white rounded-2xl shadow-sm p-8 flex flex-col gap-6"
+    >
+      <!-- Error Banner -->
+      <div
+        id="form-error-banner"
+        class="hidden rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+      <!-- Name -->
+      <div class="flex flex-col gap-1.5">
+        <label for="cf-name" class="text-sm font-medium text-gray-700">
+          Name <span class="text-red-500" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="text"
+          id="cf-name"
+          name="name"
+          autocomplete="name"
+          required
+          minlength="2"
+          class="contact-field rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
+          placeholder="Max Mustermann"
+          aria-describedby="cf-name-error"
+        />
+        <span id="cf-name-error" class="field-error hidden text-xs text-red-600" aria-live="polite"></span>
+      </div>
+
+      <!-- Email -->
+      <div class="flex flex-col gap-1.5">
+        <label for="cf-email" class="text-sm font-medium text-gray-700">
+          E-Mail <span class="text-red-500" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="email"
+          id="cf-email"
+          name="email"
+          autocomplete="email"
+          required
+          class="contact-field rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
+          placeholder="max@example.com"
+          aria-describedby="cf-email-error"
+        />
+        <span id="cf-email-error" class="field-error hidden text-xs text-red-600" aria-live="polite"></span>
+      </div>
+
+      <!-- Subject (optional) -->
+      <div class="flex flex-col gap-1.5">
+        <label for="cf-subject" class="text-sm font-medium text-gray-700">Betreff</label>
+        <input
+          type="text"
+          id="cf-subject"
+          name="subject"
+          class="contact-field rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
+          placeholder="Worum geht es?"
+        />
+      </div>
+
+      <!-- Message -->
+      <div class="flex flex-col gap-1.5">
+        <label for="cf-message" class="text-sm font-medium text-gray-700">
+          Nachricht <span class="text-red-500" aria-hidden="true">*</span>
+        </label>
+        <textarea
+          id="cf-message"
+          name="message"
+          required
+          minlength="10"
+          rows={5}
+          class="contact-field rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition resize-y"
+          placeholder="Deine Nachricht..."
+          aria-describedby="cf-message-error"
+        ></textarea>
+        <span id="cf-message-error" class="field-error hidden text-xs text-red-600" aria-live="polite"></span>
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        id="cf-submit"
+        class="w-full rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+      >
+        <span id="cf-submit-text">Nachricht senden</span>
+        <span id="cf-submit-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+      </button>
+    </form>
+  </div>
+</section>
+
+<script>
+  interface FieldConfig {
+    id: string;
+    errorId: string;
+    validate: (value: string) => string | null;
+  }
+
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const successBox = document.getElementById('form-success') as HTMLDivElement | null;
+  const errorBanner = document.getElementById('form-error-banner') as HTMLDivElement | null;
+  const submitBtn = document.getElementById('cf-submit') as HTMLButtonElement | null;
+  const submitText = document.getElementById('cf-submit-text') as HTMLSpanElement | null;
+  const submitSpinner = document.getElementById('cf-submit-spinner') as HTMLSpanElement | null;
+  const resetBtn = document.getElementById('form-reset-btn') as HTMLButtonElement | null;
+
+  const fields: FieldConfig[] = [
+    {
+      id: 'cf-name',
+      errorId: 'cf-name-error',
+      validate(v) {
+        if (!v.trim()) return 'Bitte gib deinen Namen ein.';
+        if (v.trim().length < 2) return 'Name muss mindestens 2 Zeichen haben.';
+        return null;
+      },
+    },
+    {
+      id: 'cf-email',
+      errorId: 'cf-email-error',
+      validate(v) {
+        if (!v.trim()) return 'Bitte gib deine E-Mail-Adresse ein.';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Ungültige E-Mail-Adresse.';
+        return null;
+      },
+    },
+    {
+      id: 'cf-message',
+      errorId: 'cf-message-error',
+      validate(v) {
+        if (!v.trim()) return 'Bitte schreib eine Nachricht.';
+        if (v.trim().length < 10) return 'Nachricht muss mindestens 10 Zeichen haben.';
+        return null;
+      },
+    },
+  ];
+
+  function showFieldError(fieldId: string, errorId: string, message: string) {
+    const field = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+    const errorEl = document.getElementById(errorId) as HTMLSpanElement | null;
+    if (field) field.classList.add('border-red-400', 'bg-red-50');
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+    }
+  }
+
+  function clearFieldError(fieldId: string, errorId: string) {
+    const field = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+    const errorEl = document.getElementById(errorId) as HTMLSpanElement | null;
+    if (field) field.classList.remove('border-red-400', 'bg-red-50');
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.classList.add('hidden');
+    }
+  }
+
+  function validateAll(): boolean {
+    let valid = true;
+    for (const f of fields) {
+      const el = document.getElementById(f.id) as HTMLInputElement | HTMLTextAreaElement | null;
+      const error = f.validate(el?.value ?? '');
+      if (error) {
+        showFieldError(f.id, f.errorId, error);
+        valid = false;
+      } else {
+        clearFieldError(f.id, f.errorId);
+      }
+    }
+    return valid;
+  }
+
+  // Live validation on blur
+  fields.forEach((f) => {
+    const el = document.getElementById(f.id) as HTMLInputElement | HTMLTextAreaElement | null;
+    el?.addEventListener('blur', () => {
+      const error = f.validate(el.value);
+      if (error) showFieldError(f.id, f.errorId, error);
+      else clearFieldError(f.id, f.errorId);
+    });
+    el?.addEventListener('input', () => {
+      if (!el.classList.contains('border-red-400')) return;
+      const error = f.validate(el.value);
+      if (!error) clearFieldError(f.id, f.errorId);
+    });
+  });
+
+  function setLoading(loading: boolean) {
+    if (!submitBtn || !submitText || !submitSpinner) return;
+    submitBtn.disabled = loading;
+    submitText.textContent = loading ? 'Wird gesendet...' : 'Nachricht senden';
+    submitSpinner?.classList.toggle('hidden', !loading);
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (errorBanner) {
+      errorBanner.textContent = '';
+      errorBanner.classList.add('hidden');
+    }
+    if (!validateAll()) return;
+
+    const formData = new FormData(form);
+    const payload = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      subject: formData.get('subject') as string,
+      message: formData.get('message') as string,
+    };
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        form.classList.add('hidden');
+        successBox?.classList.remove('hidden');
+      } else {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        if (errorBanner) {
+          errorBanner.textContent = data.error ?? 'Fehler beim Senden. Bitte versuche es erneut.';
+          errorBanner.classList.remove('hidden');
+        }
+      }
+    } catch {
+      if (errorBanner) {
+        errorBanner.textContent = 'Netzwerkfehler. Bitte prüfe deine Verbindung und versuche es erneut.';
+        errorBanner.classList.remove('hidden');
+      }
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    form?.reset();
+    form?.classList.remove('hidden');
+    successBox?.classList.add('hidden');
+  });
+</script>

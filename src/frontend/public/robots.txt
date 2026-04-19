@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://woistjason.de/sitemap-index.xml
+Sitemap: https://woistjason.de/sitemap-cms.xml

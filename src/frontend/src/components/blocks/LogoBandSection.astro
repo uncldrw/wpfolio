@@ -1,0 +1,66 @@
+---
+/**
+ * LogoBandSection — scrolling client/partner logos strip
+ */
+
+interface LogoItem {
+  name: string;
+  src: string;
+  url?: string;
+}
+
+interface Props {
+  title?: string;
+  logos: LogoItem[];
+}
+
+const { title = 'Vertraut von führenden Unternehmen', logos } = Astro.props;
+---
+
+<section class="py-14 bg-white border-y border-gray-100 overflow-hidden">
+  <div class="mx-auto max-w-6xl px-6">
+    {title && (
+      <p class="mb-10 text-center text-sm font-medium uppercase tracking-widest text-gray-400">{title}</p>
+    )}
+    <div class="logo-track flex items-center gap-16 whitespace-nowrap" aria-label="Partnerlogos">
+      {[...logos, ...logos].map((logo, i) => (
+        logo.url
+          ? (
+            <a href={logo.url} target="_blank" rel="noopener noreferrer" title={logo.name} class="shrink-0 grayscale hover:grayscale-0 transition-all">
+              <img src={logo.src} alt={logo.name} width="120" height="40" class="h-8 w-auto object-contain" loading="lazy" />
+            </a>
+          )
+          : (
+            <span class="shrink-0 grayscale">
+              <img src={logo.src} alt={logo.name} width="120" height="40" class="h-8 w-auto object-contain" loading="lazy" />
+            </span>
+          )
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .logo-track {
+    animation: scroll-logos 30s linear infinite;
+  }
+
+  .logo-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes scroll-logos {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      white-space: normal;
+    }
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+/**
+ * PricingSection — pricing cards grid
+ */
+
+interface PricingFeature {
+  label: string;
+  included: boolean;
+}
+
+interface PricingTier {
+  name: string;
+  price: string;
+  period?: string;
+  description?: string;
+  features: PricingFeature[];
+  ctaLabel: string;
+  ctaLink: string;
+  highlighted?: boolean;
+}
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  tiers: PricingTier[];
+}
+
+const { title, subtitle, tiers } = Astro.props;
+---
+
+<section class="py-20 bg-white" id="preise">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="mb-14 text-center">
+      <h2 class="text-4xl font-bold text-gray-900">{title}</h2>
+      {subtitle && <p class="mt-4 text-xl text-gray-500">{subtitle}</p>}
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-3">
+      {tiers.map((tier) => (
+        <div class={[
+          'relative flex flex-col rounded-2xl p-8 shadow-sm transition hover:shadow-lg',
+          tier.highlighted
+            ? 'bg-indigo-600 text-white ring-2 ring-indigo-400 scale-[1.02]'
+            : 'bg-white border border-gray-200 text-gray-900',
+        ].join(' ')}>
+          {tier.highlighted && (
+            <span class="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-4 py-1 text-xs font-bold text-gray-900 shadow">
+              Beliebt
+            </span>
+          )}
+          <div class="mb-6">
+            <h3 class={['text-xl font-bold mb-1', tier.highlighted ? 'text-white' : 'text-gray-900'].join(' ')}>
+              {tier.name}
+            </h3>
+            {tier.description && (
+              <p class={['text-sm', tier.highlighted ? 'text-indigo-200' : 'text-gray-500'].join(' ')}>
+                {tier.description}
+              </p>
+            )}
+          </div>
+          <div class="mb-8">
+            <span class={['text-5xl font-extrabold', tier.highlighted ? 'text-white' : 'text-gray-900'].join(' ')}>
+              {tier.price}
+            </span>
+            {tier.period && (
+              <span class={['text-sm ml-1', tier.highlighted ? 'text-indigo-200' : 'text-gray-400'].join(' ')}>
+                {tier.period}
+              </span>
+            )}
+          </div>
+          <ul class="flex flex-col gap-3 mb-8 flex-1">
+            {tier.features.map((f) => (
+              <li class={['flex items-center gap-2 text-sm', !f.included ? 'opacity-40 line-through' : ''].join(' ')}>
+                <span aria-hidden="true">{f.included ? '✓' : '✗'}</span>
+                {f.label}
+              </li>
+            ))}
+          </ul>
+          <a
+            href={tier.ctaLink}
+            class={[
+              'mt-auto text-center rounded-full px-6 py-3 text-sm font-semibold transition',
+              tier.highlighted
+                ? 'bg-white text-indigo-700 hover:bg-indigo-50'
+                : 'bg-indigo-600 text-white hover:bg-indigo-700',
+            ].join(' ')}
+          >
+            {tier.ctaLabel}
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

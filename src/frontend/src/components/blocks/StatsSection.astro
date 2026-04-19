@@ -1,0 +1,53 @@
+---
+/**
+ * StatsSection — impact numbers / stats grid
+ */
+
+interface Stat {
+  value: string;
+  label: string;
+  description?: string;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  stats: Stat[];
+  variant?: 'light' | 'dark' | 'indigo';
+}
+
+const { title, subtitle, stats, variant = 'indigo' } = Astro.props;
+
+const bg = {
+  light: 'bg-gray-50',
+  dark: 'bg-gray-900',
+  indigo: 'bg-indigo-700',
+}[variant];
+
+const titleColor = variant === 'light' ? 'text-gray-900' : 'text-white';
+const subtitleColor = variant === 'light' ? 'text-gray-500' : 'text-white/70';
+const valueColor = variant === 'light' ? 'text-indigo-700' : 'text-white';
+const labelColor = variant === 'light' ? 'text-gray-700' : 'text-white/80';
+const descColor = variant === 'light' ? 'text-gray-500' : 'text-white/60';
+const dividerColor = variant === 'light' ? 'border-gray-200' : 'border-white/20';
+---
+
+<section class={`py-20 ${bg}`}>
+  <div class="mx-auto max-w-5xl px-6">
+    {(title || subtitle) && (
+      <div class="mb-14 text-center">
+        {title && <h2 class={`text-4xl font-bold ${titleColor}`}>{title}</h2>}
+        {subtitle && <p class={`mt-4 text-xl ${subtitleColor}`}>{subtitle}</p>}
+      </div>
+    )}
+    <dl class={`grid gap-0 ${stats.length >= 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'}`}>
+      {stats.map((stat, i) => (
+        <div class={`flex flex-col items-center text-center py-10 px-6 ${i > 0 ? `border-l ${dividerColor}` : ''}`}>
+          <dt class={`order-last mt-2 text-sm font-medium ${labelColor}`}>{stat.label}</dt>
+          <dd class={`text-5xl font-extrabold tracking-tight ${valueColor}`}>{stat.value}</dd>
+          {stat.description && <p class={`mt-2 text-xs ${descColor}`}>{stat.description}</p>}
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>

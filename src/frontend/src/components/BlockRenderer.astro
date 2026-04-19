@@ -4,6 +4,9 @@ import AboutSection from './blocks/AboutSection.astro';
 import FeaturesSection from './blocks/FeaturesSection.astro';
 import TestimonialsSection from './blocks/TestimonialsSection.astro';
 import CtaSection from './blocks/CtaSection.astro';
+import PricingSection from './blocks/PricingSection.astro';
+import StatsSection from './blocks/StatsSection.astro';
+import LogoBandSection from './blocks/LogoBandSection.astro';
 
 type Variant = 'primary' | 'secondary' | 'dark';
 
@@ -59,7 +62,56 @@ interface CtaBlock {
   variant?: Variant;
 }
 
-type Block = HeroBlock | AboutBlock | FeaturesBlock | TestimonialsBlock | CtaBlock;
+interface PricingFeature {
+  label: string;
+  included: boolean;
+}
+
+interface PricingTier {
+  name: string;
+  price: string;
+  period?: string;
+  description?: string;
+  features: PricingFeature[];
+  ctaLabel: string;
+  ctaLink: string;
+  highlighted?: boolean;
+}
+
+interface PricingBlock {
+  blockType: 'pricing';
+  title: string;
+  subtitle?: string;
+  tiers: PricingTier[];
+}
+
+interface Stat {
+  value: string;
+  label: string;
+  description?: string;
+}
+
+interface StatsBlock {
+  blockType: 'stats';
+  title?: string;
+  subtitle?: string;
+  stats: Stat[];
+  variant?: 'light' | 'dark' | 'indigo';
+}
+
+interface LogoItem {
+  name: string;
+  src: string;
+  url?: string;
+}
+
+interface LogoBandBlock {
+  blockType: 'logoBand';
+  title?: string;
+  logos: LogoItem[];
+}
+
+type Block = HeroBlock | AboutBlock | FeaturesBlock | TestimonialsBlock | CtaBlock | PricingBlock | StatsBlock | LogoBandBlock;
 
 interface Props {
   blocks: Block[];
@@ -83,6 +135,15 @@ const { blocks } = Astro.props;
   }
   if (block.blockType === 'cta') {
     return <CtaSection {...block} />;
+  }
+  if (block.blockType === 'pricing') {
+    return <PricingSection {...block} />;
+  }
+  if (block.blockType === 'stats') {
+    return <StatsSection {...block} />;
+  }
+  if (block.blockType === 'logoBand') {
+    return <LogoBandSection {...block} />;
   }
   return null;
 })}

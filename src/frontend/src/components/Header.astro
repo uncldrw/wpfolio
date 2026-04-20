@@ -21,6 +21,13 @@ interface Menu {
 
 let navItems: NavItem[] = [];
 
+// Fallback-Navigation wenn CMS keine Menü-Items hat
+const FALLBACK_NAV: NavItem[] = [
+  { label: 'Home', url: '/' },
+  { label: 'Projekte', url: '/#projects-gallery' },
+  { label: 'Blog', url: '/blog' },
+];
+
 try {
   const res = await fetch(`${CMS_URL}/api/menus?where[identifier][equals]=main&limit=1`);
   if (res.ok) {
@@ -30,6 +37,11 @@ try {
   }
 } catch {
   // CMS unavailable — render empty nav
+}
+
+// Fallback anwenden wenn CMS keine Items hat
+if (navItems.length === 0) {
+  navItems = FALLBACK_NAV;
 }
 ---
 

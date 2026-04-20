@@ -23,6 +23,75 @@ export const Menus: CollectionConfig = {
       label: 'Identifier (z.B. "main-nav", "footer")',
     },
     {
+      name: 'tagline',
+      type: 'text',
+      label: 'Tagline (für Footer)',
+    },
+    {
+      name: 'copyright',
+      type: 'text',
+      label: 'Copyright-Text (für Footer)',
+    },
+    {
+      name: 'socialLinks',
+      type: 'array',
+      label: 'Social Links (für Footer)',
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+          label: 'Label (z.B. GitHub)',
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          label: 'URL',
+        },
+        {
+          name: 'icon',
+          type: 'text',
+          label: 'Icon (Emoji oder SVG-Pfad)',
+        },
+      ],
+    },
+    {
+      name: 'columns',
+      type: 'array',
+      label: 'Footer-Spalten (mehrspaltig)',
+      fields: [
+        {
+          name: 'heading',
+          type: 'text',
+          required: true,
+          label: 'Spalten-Titel',
+        },
+        {
+          name: 'links',
+          type: 'array',
+          label: 'Links',
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'url',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'openInNewTab',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'items',
       type: 'array',
       label: 'Menu Items',

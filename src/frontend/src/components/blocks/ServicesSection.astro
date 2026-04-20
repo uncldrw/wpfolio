@@ -1,0 +1,213 @@
+---
+/**
+ * ServicesSection — Portfolio services / offerings
+ * Layouts: cards, list, split
+ */
+
+interface Highlight {
+  point: string;
+}
+
+interface Service {
+  icon?: string;
+  title: string;
+  description: string;
+  highlights?: Highlight[];
+  highlighted?: boolean;
+  ctaLabel?: string;
+  ctaLink?: string;
+}
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  layout?: 'cards' | 'list' | 'split';
+  ctaLabel?: string;
+  ctaLink?: string;
+  services: Service[];
+}
+
+const { title, subtitle, layout = 'cards', ctaLabel, ctaLink, services } = Astro.props;
+---
+
+<section class="py-20 bg-white">
+  <div class="mx-auto max-w-6xl px-6">
+    <!-- Header -->
+    <div class="mb-14 text-center">
+      <h2 class="text-4xl font-bold text-gray-900">{title}</h2>
+      {subtitle && <p class="mt-4 text-xl text-gray-500">{subtitle}</p>}
+    </div>
+
+    {/* ---- CARDS LAYOUT ---- */}
+    {layout === 'cards' && (
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((service) => (
+          <div class={`relative rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
+            service.highlighted
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+              : 'bg-gray-50 hover:bg-white border border-gray-100'
+          }`}>
+            {service.highlighted && (
+              <span class="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-0.5 text-xs font-semibold text-white">
+                Empfohlen
+              </span>
+            )}
+            {service.icon && (
+              <div class={`mb-4 text-4xl`}>{service.icon}</div>
+            )}
+            <h3 class={`text-xl font-bold ${service.highlighted ? 'text-white' : 'text-gray-900'}`}>
+              {service.title}
+            </h3>
+            <p class={`mt-3 text-sm leading-relaxed ${service.highlighted ? 'text-white/80' : 'text-gray-500'}`}>
+              {service.description}
+            </p>
+            {service.highlights && service.highlights.length > 0 && (
+              <ul class="mt-5 space-y-2">
+                {service.highlights.map((h) => (
+                  <li class={`flex items-start gap-2 text-sm ${service.highlighted ? 'text-white/90' : 'text-gray-600'}`}>
+                    <svg class={`mt-0.5 h-4 w-4 shrink-0 ${service.highlighted ? 'text-white' : 'text-indigo-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {h.point}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {service.ctaLabel && service.ctaLink && (
+              <div class="mt-6">
+                <a
+                  href={service.ctaLink}
+                  class={`inline-block rounded-full px-5 py-2 text-sm font-semibold transition ${
+                    service.highlighted
+                      ? 'bg-white text-indigo-700 hover:bg-indigo-50'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
+                >
+                  {service.ctaLabel}
+                </a>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* ---- LIST LAYOUT ---- */}
+    {layout === 'list' && (
+      <div class="space-y-6">
+        {services.map((service) => (
+          <div class={`flex gap-6 items-start rounded-2xl p-7 transition-all ${
+            service.highlighted
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-gray-50 border border-gray-100'
+          }`}>
+            {service.icon && (
+              <div class="text-4xl shrink-0">{service.icon}</div>
+            )}
+            <div class="flex-1">
+              <h3 class={`text-xl font-bold ${service.highlighted ? 'text-white' : 'text-gray-900'}`}>
+                {service.title}
+              </h3>
+              <p class={`mt-2 text-sm leading-relaxed ${service.highlighted ? 'text-white/80' : 'text-gray-500'}`}>
+                {service.description}
+              </p>
+              {service.highlights && service.highlights.length > 0 && (
+                <ul class="mt-3 flex flex-wrap gap-3">
+                  {service.highlights.map((h) => (
+                    <li class={`flex items-center gap-1.5 text-xs ${service.highlighted ? 'text-white/80' : 'text-gray-600'}`}>
+                      <svg class={`h-3.5 w-3.5 ${service.highlighted ? 'text-white' : 'text-indigo-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {h.point}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {service.ctaLabel && service.ctaLink && (
+              <a
+                href={service.ctaLink}
+                class={`shrink-0 self-center rounded-full px-5 py-2 text-sm font-semibold transition ${
+                  service.highlighted
+                    ? 'bg-white text-indigo-700 hover:bg-indigo-50'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                }`}
+              >
+                {service.ctaLabel}
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* ---- SPLIT LAYOUT ---- */}
+    {layout === 'split' && (
+      <div class="grid gap-8 md:grid-cols-2">
+        {services.map((service) => (
+          <div class={`rounded-2xl p-7 ${
+            service.highlighted
+              ? 'bg-gradient-to-br from-indigo-600 to-purple-700 text-white shadow-xl'
+              : 'border border-gray-100 bg-gray-50'
+          }`}>
+            {service.icon && (
+              <div class={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl text-2xl ${
+                service.highlighted ? 'bg-white/20' : 'bg-indigo-100'
+              }`}>
+                {service.icon}
+              </div>
+            )}
+            <h3 class={`text-2xl font-bold ${service.highlighted ? 'text-white' : 'text-gray-900'}`}>
+              {service.title}
+            </h3>
+            <p class={`mt-3 leading-relaxed ${service.highlighted ? 'text-white/80' : 'text-gray-500'}`}>
+              {service.description}
+            </p>
+            {service.highlights && service.highlights.length > 0 && (
+              <ul class="mt-6 space-y-3">
+                {service.highlights.map((h) => (
+                  <li class={`flex items-center gap-3 ${service.highlighted ? 'text-white/90' : 'text-gray-600'}`}>
+                    <div class={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                      service.highlighted ? 'bg-white/20' : 'bg-indigo-100'
+                    }`}>
+                      <svg class={`h-3.5 w-3.5 ${service.highlighted ? 'text-white' : 'text-indigo-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span class="text-sm">{h.point}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {service.ctaLabel && service.ctaLink && (
+              <div class="mt-7">
+                <a
+                  href={service.ctaLink}
+                  class={`inline-block rounded-full px-6 py-2.5 text-sm font-semibold transition ${
+                    service.highlighted
+                      ? 'bg-white text-indigo-700 hover:bg-indigo-50'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
+                >
+                  {service.ctaLabel}
+                </a>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- Global CTA -->
+    {ctaLabel && ctaLink && (
+      <div class="mt-14 text-center">
+        <a
+          href={ctaLink}
+          class="inline-block rounded-full bg-indigo-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg hover:bg-indigo-700 hover:shadow-xl transition"
+        >
+          {ctaLabel}
+        </a>
+      </div>
+    )}
+  </div>
+</section>

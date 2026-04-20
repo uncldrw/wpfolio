@@ -5,6 +5,14 @@ import { AboutBlock } from '../blocks/AboutBlock'
 import { FeaturesBlock } from '../blocks/FeaturesBlock'
 import { TestimonialsBlock } from '../blocks/TestimonialsBlock'
 import { CtaBlock } from '../blocks/CtaBlock'
+import { PricingBlock } from '../blocks/PricingBlock'
+import { StatsBlock } from '../blocks/StatsBlock'
+import { LogoBandBlock } from '../blocks/LogoBandBlock'
+import { ProjectsGalleryBlock } from '../blocks/ProjectsGalleryBlock'
+import { ProjectSliderBlock } from '../blocks/ProjectSliderBlock'
+import { SkillsBlock } from '../blocks/SkillsBlock'
+import { TimelineBlock } from '../blocks/TimelineBlock'
+import { ServicesBlock } from '../blocks/ServicesBlock'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -29,7 +37,21 @@ export const Pages: CollectionConfig = {
     {
       name: 'layout',
       type: 'blocks',
-      blocks: [HeroBlock, AboutBlock, FeaturesBlock, TestimonialsBlock, CtaBlock],
+      blocks: [
+        HeroBlock,
+        AboutBlock,
+        FeaturesBlock,
+        TestimonialsBlock,
+        CtaBlock,
+        PricingBlock,
+        StatsBlock,
+        LogoBandBlock,
+        ProjectsGalleryBlock,
+        ProjectSliderBlock,
+        SkillsBlock,
+        TimelineBlock,
+        ServicesBlock,
+      ],
     },
     seoFields,
     {

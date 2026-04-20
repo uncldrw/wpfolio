@@ -1,0 +1,142 @@
+---
+/**
+ * SkillsSection — Tech Stack / Skills visualization
+ * Supports: grid (with progress bars), bubbles (tags), icons grid
+ */
+
+interface SkillItem {
+  name: string;
+  level?: number;
+  icon?: string;
+  logo?: { url: string; alt?: string } | string;
+}
+
+interface SkillGroup {
+  groupName: string;
+  skills: SkillItem[];
+}
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  layout?: 'grid' | 'bubbles' | 'icons';
+  skillGroups: SkillGroup[];
+}
+
+const { title, subtitle, layout = 'grid', skillGroups } = Astro.props;
+
+function getLogoUrl(logo: SkillItem['logo']): string | undefined {
+  if (!logo) return undefined;
+  if (typeof logo === 'string') return logo;
+  return logo.url;
+}
+---
+
+<section class="py-20 bg-white">
+  <div class="mx-auto max-w-6xl px-6">
+    <!-- Header -->
+    <div class="mb-14 text-center">
+      <h2 class="text-4xl font-bold text-gray-900">{title}</h2>
+      {subtitle && <p class="mt-4 text-xl text-gray-500">{subtitle}</p>}
+    </div>
+
+    <!-- Skill Groups -->
+    <div class="space-y-14">
+      {skillGroups.map((group) => (
+        <div>
+          <h3 class="mb-6 text-lg font-semibold text-gray-400 uppercase tracking-widest">{group.groupName}</h3>
+
+          {/* ---- GRID LAYOUT (progress bars) ---- */}
+          {layout === 'grid' && (
+            <div class="grid gap-5 sm:grid-cols-2">
+              {group.skills.map((skill) => (
+                <div class="flex items-center gap-4">
+                  {skill.icon && (
+                    <span class="text-2xl w-8 text-center shrink-0">{skill.icon}</span>
+                  )}
+                  {!skill.icon && getLogoUrl(skill.logo) && (
+                    <img src={getLogoUrl(skill.logo)} alt={skill.name} class="h-7 w-7 object-contain shrink-0" />
+                  )}
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-700">{skill.name}</span>
+                      {skill.level != null && (
+                        <span class="text-xs text-gray-400">{skill.level}%</span>
+                      )}
+                    </div>
+                    {skill.level != null && (
+                      <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                        <div
+                          class="skill-bar h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-1000"
+                          style={`width: 0%; --target-width: ${skill.level}%`}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ---- BUBBLES LAYOUT (tag cloud) ---- */}
+          {layout === 'bubbles' && (
+            <div class="flex flex-wrap gap-3">
+              {group.skills.map((skill) => (
+                <span class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                  {skill.icon && <span class="text-base">{skill.icon}</span>}
+                  {!skill.icon && getLogoUrl(skill.logo) && (
+                    <img src={getLogoUrl(skill.logo)} alt={skill.name} class="h-4 w-4 object-contain" />
+                  )}
+                  {skill.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* ---- ICONS LAYOUT (grid of icon+name cards) ---- */}
+          {layout === 'icons' && (
+            <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6">
+              {group.skills.map((skill) => (
+                <div class="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 p-4 hover:border-indigo-200 hover:bg-indigo-50/50 transition-colors">
+                  {skill.icon ? (
+                    <span class="text-3xl">{skill.icon}</span>
+                  ) : getLogoUrl(skill.logo) ? (
+                    <img src={getLogoUrl(skill.logo)} alt={skill.name} class="h-8 w-8 object-contain" />
+                  ) : (
+                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                      {skill.name.charAt(0)}
+                    </div>
+                  )}
+                  <span class="text-xs font-medium text-gray-600 text-center leading-tight">{skill.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Animate progress bars when they enter the viewport
+  const bars = document.querySelectorAll<HTMLElement>('.skill-bar');
+
+  if (bars.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const bar = entry.target as HTMLElement;
+            const target = bar.style.getPropertyValue('--target-width');
+            bar.style.width = target;
+            observer.unobserve(bar);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    bars.forEach((bar) => observer.observe(bar));
+  }
+</script>

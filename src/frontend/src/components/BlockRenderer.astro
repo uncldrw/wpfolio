@@ -7,6 +7,11 @@ import CtaSection from './blocks/CtaSection.astro';
 import PricingSection from './blocks/PricingSection.astro';
 import StatsSection from './blocks/StatsSection.astro';
 import LogoBandSection from './blocks/LogoBandSection.astro';
+import ProjectsGallerySection from './blocks/ProjectsGallerySection.astro';
+import ProjectSliderSection from './blocks/ProjectSliderSection.astro';
+import SkillsSection from './blocks/SkillsSection.astro';
+import TimelineSection from './blocks/TimelineSection.astro';
+import ServicesSection from './blocks/ServicesSection.astro';
 
 type Variant = 'primary' | 'secondary' | 'dark';
 
@@ -101,7 +106,7 @@ interface StatsBlock {
 
 interface LogoItem {
   name: string;
-  src: string;
+  logo: { url: string; alt?: string } | string;
   url?: string;
 }
 
@@ -111,18 +116,151 @@ interface LogoBandBlock {
   logos: LogoItem[];
 }
 
-type Block = HeroBlock | AboutBlock | FeaturesBlock | TestimonialsBlock | CtaBlock | PricingBlock | StatsBlock | LogoBandBlock;
+interface ProjectTag {
+  tag: string;
+}
+
+interface GalleryProject {
+  title: string;
+  description?: string;
+  image: { url: string; alt?: string } | string;
+  category?: string;
+  tags?: ProjectTag[];
+  link?: string;
+  githubLink?: string;
+  featured?: boolean;
+}
+
+interface ProjectsGalleryBlock {
+  blockType: 'projectsGallery';
+  title: string;
+  subtitle?: string;
+  showFilters?: boolean;
+  projects: GalleryProject[];
+}
+
+interface SliderSlide {
+  title: string;
+  description?: string;
+  image: { url: string; alt?: string } | string;
+  category?: string;
+  year?: string;
+  ctaLabel?: string;
+  ctaLink?: string;
+  tags?: ProjectTag[];
+}
+
+interface ProjectSliderBlock {
+  blockType: 'projectSlider';
+  title: string;
+  subtitle?: string;
+  autoplay?: boolean;
+  slides: SliderSlide[];
+}
+
+interface SkillItem {
+  name: string;
+  level?: number;
+  icon?: string;
+  logo?: { url: string; alt?: string } | string;
+}
+
+interface SkillGroup {
+  groupName: string;
+  skills: SkillItem[];
+}
+
+interface SkillsBlock {
+  blockType: 'skills';
+  title: string;
+  subtitle?: string;
+  layout?: 'grid' | 'bubbles' | 'icons';
+  skillGroups: SkillGroup[];
+}
+
+interface TimelineItem {
+  date: string;
+  title: string;
+  company?: string;
+  description?: string;
+  type?: 'work' | 'education' | 'project' | 'achievement';
+  skills?: string;
+  link?: string;
+}
+
+interface TimelineBlock {
+  blockType: 'timeline';
+  title: string;
+  subtitle?: string;
+  items: TimelineItem[];
+}
+
+interface Highlight {
+  point: string;
+}
+
+interface ServiceItem {
+  icon?: string;
+  title: string;
+  description: string;
+  highlights?: Highlight[];
+  highlighted?: boolean;
+  ctaLabel?: string;
+  ctaLink?: string;
+}
+
+interface ServicesBlock {
+  blockType: 'services';
+  title: string;
+  subtitle?: string;
+  layout?: 'cards' | 'list' | 'split';
+  ctaLabel?: string;
+  ctaLink?: string;
+  services: ServiceItem[];
+}
+
+type Block =
+  | HeroBlock
+  | AboutBlock
+  | FeaturesBlock
+  | TestimonialsBlock
+  | CtaBlock
+  | PricingBlock
+  | StatsBlock
+  | LogoBandBlock
+  | ProjectsGalleryBlock
+  | ProjectSliderBlock
+  | SkillsBlock
+  | TimelineBlock
+  | ServicesBlock;
 
 interface Props {
   blocks: Block[];
 }
 
 const { blocks } = Astro.props;
+
+// Helper: resolve media object (Payload returns { url, ... } or just a string)
+function resolveMedia(val: unknown): string {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object' && val !== null && 'url' in val) return (val as { url: string }).url ?? '';
+  return '';
+}
+
+// Normalize LogoBand logos: map Payload upload field to src
+function normalizeLogo(logo: LogoItem) {
+  return {
+    name: logo.name,
+    src: resolveMedia(logo.logo),
+    url: logo.url,
+  };
+}
 ---
 
 {blocks.map((block) => {
   if (block.blockType === 'hero') {
-    return <HeroSection {...block} />;
+    return <HeroSection {...block} backgroundImage={resolveMedia(block.backgroundImage)} />;
   }
   if (block.blockType === 'about') {
     return <AboutSection {...block} />;
@@ -143,7 +281,23 @@ const { blocks } = Astro.props;
     return <StatsSection {...block} />;
   }
   if (block.blockType === 'logoBand') {
-    return <LogoBandSection {...block} />;
+    const normalizedLogos = block.logos.map(normalizeLogo);
+    return <LogoBandSection title={block.title} logos={normalizedLogos} />;
+  }
+  if (block.blockType === 'projectsGallery') {
+    return <ProjectsGallerySection {...block} />;
+  }
+  if (block.blockType === 'projectSlider') {
+    return <ProjectSliderSection {...block} />;
+  }
+  if (block.blockType === 'skills') {
+    return <SkillsSection {...block} />;
+  }
+  if (block.blockType === 'timeline') {
+    return <TimelineSection {...block} />;
+  }
+  if (block.blockType === 'services') {
+    return <ServicesSection {...block} />;
   }
   return null;
 })}

@@ -40,7 +40,6 @@ export const ProjectSliderBlock: Block = {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
-          required: true,
         },
         {
           name: 'category',

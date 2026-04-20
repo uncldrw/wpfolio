@@ -5,6 +5,7 @@
  * for the CMS-generated pages and can be linked from robots.txt.
  */
 import type { APIRoute } from 'astro';
+import { CMS_URL } from 'astro:env/server';
 
 interface CMSPage {
   id: string;
@@ -22,7 +23,6 @@ function escapeXml(str: string): string {
 }
 
 export const GET: APIRoute = async () => {
-  const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000';
   const SITE = 'https://woistjason.de';
 
   let pages: CMSPage[] = [];

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { CMS_URL } from 'astro:env/server';
 
 interface ContactPayload {
   name: string;
@@ -43,8 +44,6 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   }
-
-  const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000';
 
   try {
     const res = await fetch(`${CMS_URL}/api/contact-submissions`, {

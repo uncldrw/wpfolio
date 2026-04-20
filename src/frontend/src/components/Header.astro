@@ -5,7 +5,7 @@
  * Falls back gracefully if CMS is unavailable.
  */
 
-const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000';
+import { CMS_URL } from 'astro:env/server';
 
 interface NavItem {
   label: string;
@@ -22,7 +22,7 @@ interface Menu {
 let navItems: NavItem[] = [];
 
 try {
-  const res = await fetch(`${CMS_URL}/api/menus?where[label][equals]=main&limit=1`);
+  const res = await fetch(`${CMS_URL}/api/menus?where[identifier][equals]=main&limit=1`);
   if (res.ok) {
     const data = await res.json();
     const menu: Menu | undefined = data.docs?.[0];

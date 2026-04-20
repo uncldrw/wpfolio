@@ -32,5 +32,6 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI ?? 'postgres://postgres:postgres@db:5432/payload',
     },
+    push: true,
   }),
 })

@@ -23,11 +23,15 @@ services:
     environment:
       DATABASE_URI: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/payload
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-secret-change-me}
-      NODE_ENV: development
+      NODE_ENV: production
     volumes:
       - cms_media:/app/media
     ports:
       - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   frontend:
     build: ./src/frontend
@@ -36,6 +40,10 @@ services:
       - cms
     environment:
       CMS_URL: http://cms:3000
+    deploy:
+      resources:
+        limits:
+          memory: 256m
 
   nginx:
     build: ./src/nginx

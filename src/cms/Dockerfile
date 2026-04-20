@@ -17,6 +17,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/db-push.mjs ./db-push.mjs
 COPY start.sh ./start.sh
 RUN chmod +x ./start.sh
 EXPOSE 3000

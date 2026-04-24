@@ -1,0 +1,29 @@
+{
+    "name": "wpfolio",
+    "version": "1.0.0",
+    "private": true,
+    "description": "wpfolio monorepo — Astro frontend + Payload CMS + Nginx reverse proxy",
+    "packageManager": "pnpm@9.12.3",
+    "engines": {
+        "node": ">=22.12.0",
+        "pnpm": ">=9"
+    },
+    "scripts": {
+        "build": "docker compose build",
+        "build:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml build",
+        "build:apps": "pnpm -r --parallel run build",
+        "build:cms": "docker compose build cms",
+        "build:frontend": "docker compose build frontend",
+        "build:nginx": "docker compose build nginx",
+        "dev": "pnpm -r --parallel run dev",
+        "dev:cms": "pnpm --filter @wpfolio/cms run dev",
+        "dev:frontend": "pnpm --filter @wpfolio/frontend run dev",
+        "dev:backend": "docker compose up -d db cms",
+        "dev:stack": "docker compose up -d db cms && pnpm --filter @wpfolio/frontend run dev",
+        "up": "docker compose up -d",
+        "up:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
+        "down": "docker compose down",
+        "logs": "docker compose logs -f",
+        "clean": "pnpm -r exec rm -rf node_modules dist .next && rm -rf node_modules"
+    }
+}

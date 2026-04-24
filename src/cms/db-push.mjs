@@ -4,7 +4,10 @@
  * This bypasses the NODE_ENV=production check in connect.js
  */
 import { getPayload } from 'payload';
-import config from './src/payload.config.ts';
+// tsx compiles payload.config.ts as CJS, so the ESM default import receives
+// { default: buildConfig(...) } rather than the Promise directly.
+import _config from './src/payload.config.ts';
+const config = _config?.default ?? _config;
 
 async function main() {
   console.log('[db-push] Initializing Payload to push schema...');

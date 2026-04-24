@@ -4,6 +4,9 @@ export const Menus: CollectionConfig = {
   slug: 'menus',
   access: {
     read: () => true,
+    create: ({ req }) => Boolean(req.user),
+    update: ({ req }) => Boolean(req.user),
+    delete: ({ req }) => Boolean(req.user),
   },
   admin: {
     useAsTitle: 'name',

@@ -1,5 +1,5 @@
 {
-  "name": "cms",
+  "name": "@wpfolio/cms",
   "version": "1.0.0",
   "description": "wpfolio CMS \u2014 Payload v3",
   "scripts": {
@@ -12,12 +12,13 @@
     "@payloadcms/db-postgres": "*",
     "@payloadcms/next": "*",
     "@payloadcms/richtext-lexical": "*",
-    "next": "15",
+    "next": "~15.4.11",
     "payload": "^3.83.0",
     "react": "^19",
     "react-dom": "^19",
     "sharp": "*",
-    "graphql": "*"
+    "graphql": "*",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/node": "^22",

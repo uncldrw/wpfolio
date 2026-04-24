@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "jsx": "preserve",
@@ -9,9 +13,27 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "paths": {
-      "@payload-config": ["./src/payload.config.ts"]
-    }
+      "@payload-config": [
+        "./src/payload.config.ts"
+      ]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src/**/*", "next.config.mjs"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next.config.mjs",
+    "src/**/*",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

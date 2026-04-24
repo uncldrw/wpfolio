@@ -15,7 +15,10 @@ services:
       retries: 5
 
   cms:
-    build: ./src/cms
+    build:
+      context: .
+      dockerfile: ./src/cms/Dockerfile
+    image: wpfolio-cms:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -23,7 +26,13 @@ services:
     environment:
       DATABASE_URI: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/payload
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-secret-change-me}
-      NODE_ENV: production
+      NEXT_PUBLIC_SERVER_URL: ${CMS_PUBLIC_URL:-http://localhost:3000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4321,http://localhost:3000}
+      PAYLOAD_FORCE_DRIZZLE_PUSH: "true"
+      # NODE_ENV=development damit Payloads pushDevSchema beim ersten getPayload()
+      # Aufruf das Drizzle-Schema in die DB pusht. `next start` läuft trotzdem auf
+      # dem zuvor gebauten Production-Bundle (next build).
+      NODE_ENV: development
     volumes:
       - cms_media:/app/media
     ports:
@@ -34,7 +43,10 @@ services:
           memory: 512m
 
   frontend:
-    build: ./src/frontend
+    build:
+      context: .
+      dockerfile: ./src/frontend/Dockerfile
+    image: wpfolio-frontend:latest
     restart: unless-stopped
     depends_on:
       - cms
@@ -46,13 +58,15 @@ services:
           memory: 256m
 
   nginx:
-    build: ./src/nginx
+    build:
+      context: ./src/nginx
+    image: wpfolio-nginx:latest
     restart: unless-stopped
     depends_on:
       - frontend
       - cms
     ports:
-      - "8080:80"
+      - "${NGINX_PORT:-80}:80"
 
 volumes:
   db_data:

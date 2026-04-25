@@ -1,0 +1,249 @@
+---
+/**
+ * Header Component
+ * Fetches navigation from Payload CMS `menus` collection.
+ * Falls back gracefully if CMS is unavailable.
+ */
+
+import { CMS_URL } from "astro:env/server";
+
+interface NavItem {
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+}
+
+interface Menu {
+  id: string;
+  label: string;
+  items: NavItem[];
+}
+
+let navItems: NavItem[] = [];
+
+// Fallback-Navigation wenn CMS keine Menü-Items hat
+const FALLBACK_NAV: NavItem[] = [
+  { label: "Home", url: "/" },
+  { label: "Projekte", url: "/#projects-gallery" },
+  { label: "Blog", url: "/blog" },
+];
+
+try {
+  const res = await fetch(
+    `${CMS_URL}/api/menus?where[identifier][equals]=main&limit=1`,
+  );
+  if (res.ok) {
+    const data = await res.json();
+    const menu: Menu | undefined = data.docs?.[0];
+    navItems = menu?.items ?? [];
+  }
+} catch {
+  // CMS unavailable — render empty nav
+}
+
+// Fallback anwenden wenn CMS keine Items hat
+if (navItems.length === 0) {
+  navItems = FALLBACK_NAV;
+}
+---
+
+<header
+  class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm"
+  id="site-header"
+>
+  <div class="mx-auto max-w-6xl px-6 flex items-center justify-between h-16">
+    <!-- Logo -->
+    <a
+      href="/"
+      class="flex items-center gap-2 font-bold text-xl text-indigo-700 tracking-tight"
+    >
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <rect width="28" height="28" rx="8" fill="#4F46E5"></rect>
+        <path
+          d="M8 20L14 8L20 20"
+          stroke="white"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+        <path
+          d="M10 16H18"
+          stroke="white"
+          stroke-width="2.5"
+          stroke-linecap="round"></path>
+      </svg>
+      wpfolio
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center gap-6" aria-label="Main navigation">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.url}
+            target={item.openInNewTab ? "_blank" : undefined}
+            rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+            class="text-sm font-medium text-gray-600 hover:text-indigo-700 transition-colors"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href="/kontakt"
+        class="inline-block rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition"
+      >
+        Kontakt
+      </a>
+    </nav>
+
+    <!-- Mobile Burger Button -->
+    <button
+      id="burger-btn"
+      aria-label="Menü öffnen"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      class="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-lg hover:bg-gray-100 transition"
+    >
+      <span
+        class="burger-line block w-5 h-0.5 bg-gray-700 rounded transition-all duration-300 origin-center"
+      ></span>
+      <span
+        class="burger-line block w-5 h-0.5 bg-gray-700 rounded transition-all duration-300 mt-1.5 origin-center"
+      ></span>
+      <span
+        class="burger-line block w-5 h-0.5 bg-gray-700 rounded transition-all duration-300 mt-1.5 origin-center"
+      ></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Slide-In Menu -->
+<div
+  id="mobile-menu"
+  class="fixed inset-0 z-40 md:hidden pointer-events-none"
+  aria-hidden="true"
+>
+  <!-- Backdrop -->
+  <div
+    id="mobile-backdrop"
+    class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300"
+  >
+  </div>
+
+  <!-- Drawer -->
+  <nav
+    id="mobile-drawer"
+    class="absolute top-0 right-0 h-full w-72 bg-white shadow-2xl translate-x-full transition-transform duration-300 ease-in-out flex flex-col pt-20 px-6"
+    aria-label="Mobile navigation"
+  >
+    <div class="flex flex-col gap-1">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.url}
+            target={item.openInNewTab ? "_blank" : undefined}
+            rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+            class="mobile-nav-link py-3 px-4 rounded-lg text-base font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href="/kontakt"
+        class="mobile-nav-link mt-4 inline-block rounded-full bg-indigo-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-indigo-700 transition"
+      >
+        Kontakt
+      </a>
+    </div>
+  </nav>
+</div>
+
+<!-- Spacer to prevent content hiding under fixed header -->
+<div class="h-16"></div>
+
+<script>
+  const burgerBtn = document.getElementById("burger-btn") as HTMLButtonElement;
+  const mobileMenu = document.getElementById("mobile-menu") as HTMLDivElement;
+  const mobileBackdrop = document.getElementById(
+    "mobile-backdrop",
+  ) as HTMLDivElement;
+  const mobileDrawer = document.getElementById("mobile-drawer") as HTMLElement;
+  const burgerLines =
+    burgerBtn?.querySelectorAll<HTMLSpanElement>(".burger-line");
+
+  let isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    mobileMenu.classList.remove("pointer-events-none");
+    mobileMenu.setAttribute("aria-hidden", "false");
+    mobileBackdrop.classList.remove("opacity-0");
+    mobileBackdrop.classList.add("opacity-100");
+    mobileDrawer.classList.remove("translate-x-full");
+    burgerBtn.setAttribute("aria-expanded", "true");
+    burgerBtn.setAttribute("aria-label", "Menü schließen");
+    animateBurger(true);
+    document.body.style.overflow = "hidden";
+    // Sync with global store if available
+    window.menuStore?.open();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    mobileBackdrop.classList.remove("opacity-100");
+    mobileBackdrop.classList.add("opacity-0");
+    mobileDrawer.classList.add("translate-x-full");
+    burgerBtn.setAttribute("aria-expanded", "false");
+    burgerBtn.setAttribute("aria-label", "Menü öffnen");
+    animateBurger(false);
+    document.body.style.overflow = "";
+    // Re-add pointer-events-none after transition
+    setTimeout(() => {
+      if (!isOpen) {
+        mobileMenu.classList.add("pointer-events-none");
+        mobileMenu.setAttribute("aria-hidden", "true");
+      }
+    }, 300);
+    window.menuStore?.close();
+  }
+
+  function animateBurger(open: boolean) {
+    if (!burgerLines || burgerLines.length < 3) return;
+    const [top, mid, bot] = Array.from(burgerLines);
+    if (open) {
+      top.style.transform = "translateY(8px) rotate(45deg)";
+      mid.style.opacity = "0";
+      bot.style.transform = "translateY(-8px) rotate(-45deg)";
+    } else {
+      top.style.transform = "";
+      mid.style.opacity = "1";
+      bot.style.transform = "";
+    }
+  }
+
+  burgerBtn?.addEventListener("click", () => {
+    isOpen ? closeMenu() : openMenu();
+  });
+
+  mobileBackdrop?.addEventListener("click", closeMenu);
+
+  // Close on nav link click
+  mobileMenu
+    ?.querySelectorAll<HTMLAnchorElement>(".mobile-nav-link")
+    .forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+  // Close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen) closeMenu();
+  });
+</script>

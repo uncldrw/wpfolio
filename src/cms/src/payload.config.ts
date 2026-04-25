@@ -10,15 +10,20 @@ import { Submissions } from './collections/Submissions'
 import { PluginConfigs } from './collections/PluginConfigs'
 import { SitemapConfig } from './globals/SitemapConfig'
 
-const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:4321,https://dev.woistjason.de')
-  .split(',')
-  .map((o) => o.trim())
+const serverURL = process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://dev.woistjason.de'
+
+const allowedOrigins = [
+  ...(process.env.CORS_ORIGINS ?? 'http://localhost:4321,https://dev.woistjason.de')
+    .split(',')
+    .map((o) => o.trim()),
+  serverURL,
+].filter((v, i, arr) => arr.indexOf(v) === i) // deduplicate
 
 export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://dev.woistjason.de',
+  serverURL,
   collections: [Posts, Pages, Media, Users, Menus, Submissions, PluginConfigs],
   globals: [SitemapConfig],
   editor: lexicalEditor({}),

@@ -7,16 +7,21 @@ interface Props {
   backgroundImage?: string;
 }
 
-const { headline, subheadline, ctaLabel, ctaLink, backgroundImage } = Astro.props;
+const { headline, subheadline, ctaLabel, ctaLink, backgroundImage } =
+  Astro.props;
 ---
 
 <section
   class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white"
-  style={backgroundImage ? `background-image: url('${backgroundImage}'); background-size: cover; background-position: center;` : undefined}
+  style={backgroundImage
+    ? `background-image: url('${backgroundImage}'); background-size: cover; background-position: center;`
+    : undefined}
 >
-  {backgroundImage && <div class="absolute inset-0 bg-black/50" />}
+  {backgroundImage && <div class="absolute inset-0" />}
   <div class="relative z-10 mx-auto max-w-4xl px-6 text-center">
-    <h1 class="mb-6 text-5xl font-extrabold leading-tight tracking-tight md:text-7xl">
+    <h1
+      class="mb-6 text-5xl font-extrabold leading-tight tracking-tight md:text-7xl"
+    >
       {headline}
     </h1>
     <p class="mb-10 text-xl text-white/80 md:text-2xl">

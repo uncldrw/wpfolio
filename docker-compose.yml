@@ -26,8 +26,8 @@ services:
     environment:
       DATABASE_URI: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/payload
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-secret-change-me}
-      NEXT_PUBLIC_SERVER_URL: ${CMS_PUBLIC_URL:-http://localhost:3000}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4321,http://localhost:3000}
+      NEXT_PUBLIC_SERVER_URL: ${CMS_PUBLIC_URL:-http://localhost}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:4321,http://localhost:3000}
       PAYLOAD_FORCE_DRIZZLE_PUSH: "true"
       # NODE_ENV=development damit Payloads pushDevSchema beim ersten getPayload()
       # Aufruf das Drizzle-Schema in die DB pusht. `next start` läuft trotzdem auf

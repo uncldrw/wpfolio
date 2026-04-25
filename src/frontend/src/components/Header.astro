@@ -1,87 +1,91 @@
-<!-- <script>
+<script>
   import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-  gsap.registerPlugin(ScrollTrigger);
+  function init() {
+    const headerBg = document.querySelector<HTMLElement>(".header-bg");
+    const headerContent =
+      document.querySelector<HTMLElement>(".header-content");
+    const navItems = gsap.utils.toArray<HTMLElement>("header li");
 
-  function initHeaderTrigger() {
-    const headerEl = document.querySelector<HTMLElement>("header");
-    const headerMain = document.querySelector<HTMLElement>(".header-main");
-    const navItems = gsap.utils.toArray<HTMLElement>(".header-main ul li");
-    const sections = document.querySelectorAll("section");
-    const secondSection = sections[1] as HTMLElement | undefined;
+    if (!headerBg || !headerContent || !navItems.length) return;
 
-    if (!headerEl || !headerMain || !secondSection || !navItems.length) return;
-
-    // Resolve --header-height (rem/em/px) to a px number for ScrollTrigger.
-    const rootEl = document.documentElement;
-    const raw = getComputedStyle(rootEl)
-      .getPropertyValue("--header-height")
-      .trim();
-    const rootFontSize = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
-    const getHeaderPx = () => {
-      if (raw.endsWith("rem") || raw.endsWith("em"))
-        return parseFloat(raw) * rootFontSize;
-      if (raw.endsWith("px")) return parseFloat(raw);
-      return parseFloat(raw) || 64;
-    };
-
-    // Build a reversible timeline that morphs the header from "floating" to
-    // "docked" and drags the nav items along with a staggered follower effect.
     const tl = gsap.timeline({
       paused: true,
-      defaults: { ease: "power3.out", overwrite: "auto" },
+      defaults: { ease: "power2.out" },
+    });
+    const tl2 = gsap.timeline({
+      paused: true,
+      defaults: { ease: "power2.out" },
     });
 
-    tl.fromTo(
-      headerEl,
-      { paddingTop: "1rem", paddingLeft: "1rem", paddingRight: "1rem" },
-      {
-        paddingTop: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
-        height: "var(--header-height--collapsed)",
-        duration: 0.45,
-        immediateRender: false,
-      },
-      0,
-    )
-      .fromTo(
-        headerMain,
-        { borderRadius: "0.375rem" },
-        { borderRadius: 0, duration: 0.45, immediateRender: false },
+    tl
+      // 1. Hintergrund schrumpft: margin → 0, height → 5rem, border-radius → 0
+      .to(
+        headerBg,
+        {
+          marginTop: 0,
+          marginLeft: 0,
+          marginRight: 0,
+          height: "var(--header-height--collapsed)",
+          duration: 0.4,
+          ease: "power2.inOut",
+        },
+        0,
+      )
+      .to(
+        headerBg,
+        {
+          borderRadius: 0,
+          duration: 0.4,
+          hease: "power2.inOut",
+        },
+        0,
+      )
+      .to(
+        headerContent,
+        {
+          height: "var(--header-height--collapsed)",
+          duration: 0.4,
+          ease: "power2.inOut",
+        },
         0,
       )
       .to(
         navItems,
         {
-          keyframes: {
-            y: [0, -22, 0],
-            ease: "power2.inOut",
-          },
-          duration: 0.9,
-          stagger: 0.18,
+          padding: "1.75rem",
+          duration: 0.2,
+          stagger: 0.1,
+          ease: "power2.out",
+          height: "var(--header-height--collapsed)",
         },
-        0.15,
+        0.1,
       );
+    // 2. Nav items staggered: padding 2.5rem → 1rem, 100ms nach Header-Start
 
-    ScrollTrigger.create({
-      trigger: secondSection,
-      start: () => `top top+=${getHeaderPx()}`,
-      end: 99999,
-      invalidateOnRefresh: true,
-      onEnter: () => tl.play(),
-      onEnterBack: () => tl.play(),
-      onLeaveBack: () => tl.reverse(),
-    });
+    let isCollapsed = false;
+
+    const handleScroll = () => {
+      const shouldCollapse = window.scrollY > 10;
+      if (shouldCollapse && !isCollapsed) {
+        isCollapsed = true;
+        tl.play();
+      } else if (!shouldCollapse && isCollapsed) {
+        isCollapsed = false;
+        tl.reverse();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initHeaderTrigger);
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    initHeaderTrigger();
+    init();
   }
-</script> -->
+</script>
 <header>
   <div class="header-main">
     <div class="header-content">
@@ -98,7 +102,7 @@
 <style is:global>
   :root {
     --header-height: 7rem;
-    --header-height--collapsed: 4rem;
+    --header-height--collapsed: 5rem;
   }
 </style>
 
@@ -113,7 +117,6 @@
       position: relative;
 
       .header-bg {
-        grid-area: 1 / 1;
         border: grey 1px solid;
         border-radius: 0.375rem;
         background: rgba(255, 255, 255, 0.68);
@@ -128,9 +131,10 @@
       .header-content {
         position: absolute;
         inset: 0;
-        margin: 1rem 1rem 0;
         z-index: 1;
-        height: var(--header-height);
+        height: calc(
+          var(--header-height) + 2rem
+        ); // Höhe + vertikaler Margin der Hintergrundbox
         ul {
           display: flex;
           gap: 2rem;
@@ -142,7 +146,6 @@
             font-weight: 500;
             color: #333;
             transition: color 0.2s;
-            height: var(--header-height);
             padding: 2.5rem;
 
             &:hover {

@@ -1,63 +1,104 @@
-<script>
-  function observeSecondSection() {
-    const headerMain = document.querySelector(".header-main");
+<!-- <script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initHeaderTrigger() {
+    const headerEl = document.querySelector<HTMLElement>("header");
+    const headerMain = document.querySelector<HTMLElement>(".header-main");
+    const navItems = gsap.utils.toArray<HTMLElement>(".header-main ul li");
     const sections = document.querySelectorAll("section");
-    const secondSection = sections[1];
+    const secondSection = sections[1] as HTMLElement | undefined;
 
-    if (!headerMain || !secondSection) return;
+    if (!headerEl || !headerMain || !secondSection || !navItems.length) return;
 
-    // rootMargin only accepts px or %, not rem — resolve --header-height to px
+    // Resolve --header-height (rem/em/px) to a px number for ScrollTrigger.
     const rootEl = document.documentElement;
-    const headerHeightRaw = getComputedStyle(rootEl)
+    const raw = getComputedStyle(rootEl)
       .getPropertyValue("--header-height")
       .trim();
     const rootFontSize = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
-    let headerHeightPx = 0;
-    if (headerHeightRaw.endsWith("rem")) {
-      headerHeightPx = parseFloat(headerHeightRaw) * rootFontSize;
-    } else if (headerHeightRaw.endsWith("em")) {
-      headerHeightPx = parseFloat(headerHeightRaw) * rootFontSize;
-    } else if (headerHeightRaw.endsWith("px")) {
-      headerHeightPx = parseFloat(headerHeightRaw);
-    } else {
-      headerHeightPx = parseFloat(headerHeightRaw) || 64;
-    }
+    const getHeaderPx = () => {
+      if (raw.endsWith("rem") || raw.endsWith("em"))
+        return parseFloat(raw) * rootFontSize;
+      if (raw.endsWith("px")) return parseFloat(raw);
+      return parseFloat(raw) || 64;
+    };
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        headerMain.classList.toggle("active", entry.isIntersecting);
-      },
+    // Build a reversible timeline that morphs the header from "floating" to
+    // "docked" and drags the nav items along with a staggered follower effect.
+    const tl = gsap.timeline({
+      paused: true,
+      defaults: { ease: "power3.out", overwrite: "auto" },
+    });
+
+    tl.fromTo(
+      headerEl,
+      { paddingTop: "1rem", paddingLeft: "1rem", paddingRight: "1rem" },
       {
-        // fire when the second section reaches the header height
-        rootMargin: `-${headerHeightPx}px 0px 0px 0px`,
-        threshold: 0,
+        paddingTop: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        height: "var(--header-height--collapsed)",
+        duration: 0.45,
+        immediateRender: false,
       },
-    );
+      0,
+    )
+      .fromTo(
+        headerMain,
+        { borderRadius: "0.375rem" },
+        { borderRadius: 0, duration: 0.45, immediateRender: false },
+        0,
+      )
+      .to(
+        navItems,
+        {
+          keyframes: {
+            y: [0, -22, 0],
+            ease: "power2.inOut",
+          },
+          duration: 0.9,
+          stagger: 0.18,
+        },
+        0.15,
+      );
 
-    observer.observe(secondSection);
+    ScrollTrigger.create({
+      trigger: secondSection,
+      start: () => `top top+=${getHeaderPx()}`,
+      end: 99999,
+      invalidateOnRefresh: true,
+      onEnter: () => tl.play(),
+      onEnterBack: () => tl.play(),
+      onLeaveBack: () => tl.reverse(),
+    });
   }
 
-  // Wait for DOM to be fully ready
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", observeSecondSection);
+    document.addEventListener("DOMContentLoaded", initHeaderTrigger);
   } else {
-    observeSecondSection();
+    initHeaderTrigger();
   }
-</script>
-
+</script> -->
 <header>
   <div class="header-main">
-    <ul>
-      <li>Home</li>
-      <li>References</li>
-      <li>About Us</li>
-    </ul>
+    <div class="header-content">
+      <ul>
+        <li>Home</li>
+        <li>References</li>
+        <li>About Us</li>
+      </ul>
+    </div>
+    <div class="header-bg"></div>
   </div>
 </header>
 
 <style is:global>
   :root {
-    --header-height: 4rem;
+    --header-height: 7rem;
+    --header-height--collapsed: 4rem;
   }
 </style>
 
@@ -65,20 +106,51 @@
   header {
     position: fixed;
     top: 0;
-    height: var(--header-height);
     width: 100%;
     z-index: 50;
-  }
 
-  .header-main.active {
-  }
+    .header-main {
+      position: relative;
 
-  .header-main {
-    margin: 1rem 1rem 0;
-    border: grey 1px solid;
-    border-radius: 0.375rem;
-    background: rgba(255, 255, 255, 0.68);
-    backdrop-filter: blur(36px) saturate(150%);
-    -webkit-backdrop-filter: blur(36px) saturate(150%);
+      .header-bg {
+        grid-area: 1 / 1;
+        border: grey 1px solid;
+        border-radius: 0.375rem;
+        background: rgba(255, 255, 255, 0.68);
+        backdrop-filter: blur(36px) saturate(150%);
+        -webkit-backdrop-filter: blur(36px) saturate(150%);
+        margin: 1rem 1rem 0;
+        position: absolute;
+        inset: 0;
+        height: var(--header-height);
+      }
+
+      .header-content {
+        position: absolute;
+        inset: 0;
+        margin: 1rem 1rem 0;
+        z-index: 1;
+        height: var(--header-height);
+        ul {
+          display: flex;
+          gap: 2rem;
+          height: 100%;
+          align-items: center;
+
+          li {
+            cursor: pointer;
+            font-weight: 500;
+            color: #333;
+            transition: color 0.2s;
+            height: var(--header-height);
+            padding: 2.5rem;
+
+            &:hover {
+              color: #000;
+            }
+          }
+        }
+      }
+    }
   }
 </style>

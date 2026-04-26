@@ -20,10 +20,10 @@
         "dev:frontend": "pnpm --filter @wpfolio/frontend run dev",
         "dev:backend": "docker compose up -d db cms",
         "dev:stack": "docker compose up -d db cms && pnpm --filter @wpfolio/frontend run dev",
-        "up": "docker compose up -d",
-        "up:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
-        "down": "docker compose down",
-        "logs": "docker compose logs -f",
+        "dock": "docker compose up -d",
+        "dock:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
+        "dock:down": "docker compose down",
+        "dock:logs": "docker compose logs -f",
         "clean": "pnpm -r exec rm -rf node_modules dist .next && rm -rf node_modules"
     }
 }

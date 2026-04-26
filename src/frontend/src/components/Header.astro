@@ -1,83 +1,100 @@
 <script>
   import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
 
   function init() {
+    const header = document.querySelector<HTMLElement>("header");
     const headerBg = document.querySelector<HTMLElement>(".header-bg");
     const headerContent =
       document.querySelector<HTMLElement>(".header-content");
     const navItems = gsap.utils.toArray<HTMLElement>("header li");
 
-    if (!headerBg || !headerContent || !navItems.length) return;
+    if (!header || !headerBg || !headerContent || !navItems.length) return;
 
-    const tl = gsap.timeline({
-      paused: true,
-      defaults: { ease: "power2.out" },
-    });
-    const tl2 = gsap.timeline({
-      paused: true,
-      defaults: { ease: "power2.out" },
-    });
-
-    tl
-      // 1. Hintergrund schrumpft: margin → 0, height → 5rem, border-radius → 0
-      .to(
-        headerBg,
-        {
-          marginTop: 0,
-          marginLeft: 0,
-          marginRight: 0,
-          height: "var(--header-height--collapsed)",
-          duration: 0.4,
-          ease: "power2.inOut",
-        },
-        0,
-      )
-      .to(
-        headerBg,
-        {
-          borderRadius: 0,
-          duration: 0.4,
-          hease: "power2.inOut",
-        },
-        0,
-      )
-      .to(
-        headerContent,
-        {
-          height: "var(--header-height--collapsed)",
-          duration: 0.4,
-          ease: "power2.inOut",
-        },
-        0,
-      )
-      .to(
-        navItems,
-        {
-          padding: "1.75rem",
-          duration: 0.2,
-          stagger: 0.1,
-          ease: "power2.out",
-          height: "var(--header-height--collapsed)",
-        },
-        0.1,
-      );
     // 2. Nav items staggered: padding 2.5rem → 1rem, 100ms nach Header-Start
 
     let isCollapsed = false;
 
-    const handleScroll = () => {
-      const shouldCollapse = window.scrollY > 10;
-      if (shouldCollapse && !isCollapsed) {
-        isCollapsed = true;
-        tl.play();
-      } else if (!shouldCollapse && isCollapsed) {
-        isCollapsed = false;
-        tl.reverse();
-      }
-    };
+    // Active-Klasse wenn 2. Section erreicht wird
+    const secondSection = document.querySelector<HTMLElement>(
+      "main > section:nth-child(2), main > *:nth-child(2)",
+    );
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    // Resolve CSS-variable / calc() expressions to absolute pixel values so
+    // GSAP can interpolate cleanly from the items' current pixel height
+    // (avoids snap-to-target on rapid re-triggers).
+    const rootStyles = getComputedStyle(document.documentElement);
+    const remToPx = parseFloat(rootStyles.fontSize) || 16;
+    const parseLen = (value: string) => {
+      const v = value.trim();
+      if (v.endsWith("rem")) return parseFloat(v) * remToPx;
+      if (v.endsWith("px")) return parseFloat(v);
+      return parseFloat(v) || 0;
+    };
+    const headerHeight = parseLen(
+      rootStyles.getPropertyValue("--header-height"),
+    );
+    const headerHeightCollapsed = parseLen(
+      rootStyles.getPropertyValue("--header-height--collapsed"),
+    );
+    const expandedPx = headerHeight + 2 * remToPx;
+    const collapsedPx = headerHeightCollapsed;
+
+    if (secondSection) {
+      ScrollTrigger.create({
+        trigger: secondSection,
+        start: "top top",
+        onEnter: () => {
+          header.classList.add("active");
+          gsap.to(headerBg, {
+            height: `${collapsedPx}px`,
+            duration: 0.5,
+            borderRadius: "0rem",
+            borderWidth: "0px",
+            borderBottomWidth: "1px",
+            margin: "0",
+            ease: "expo.out",
+          });
+          navItems.forEach((item, i) => {
+            gsap.to(item, {
+              duration: 0.3,
+              height: `${collapsedPx}px`,
+              marginLeft: "2rem",
+              ease: "back.out(1.6)",
+              overwrite: true,
+              delay: 0.1 * i * 0.2,
+            });
+          });
+        },
+        onLeaveBack: () => {
+          header.classList.remove("active");
+          gsap.killTweensOf(navItems);
+          gsap.to(headerBg, {
+            height: `${headerHeight}px`,
+            duration: 0.5,
+            borderRadius: "0.375rem",
+            borderWidth: "1px",
+            margin: "1rem",
+            ease: "expo.out",
+          });
+          gsap.to(navItems, {
+            height: `${expandedPx}px`,
+            duration: 0.4,
+            ease: "back.out(1.6)",
+          });
+          navItems.forEach((item, i) => {
+            gsap.to(item, {
+              marginLeft: "4rem",
+              duration: 0.4,
+              ease: "back.out(1.6)",
+              delay: 0.2 * i * 0.2,
+            });
+          });
+        },
+      });
+    }
   }
 
   if (document.readyState === "loading") {
@@ -90,9 +107,9 @@
   <div class="header-main">
     <div class="header-content">
       <ul>
-        <li>Home</li>
-        <li>References</li>
-        <li>About Us</li>
+        <li><span>Home</span></li>
+        <li><span>References</span></li>
+        <li><span>About Us</span></li>
       </ul>
     </div>
     <div class="header-bg"></div>
@@ -107,6 +124,17 @@
 </style>
 
 <style lang="scss">
+  // header.active {
+  //   .header-main {
+  //     .header-bg {
+  //       height: var(--header-height--collapsed);
+  //       border-radius: 0rem;
+  //       border-width: 0px;
+  //       border-bottom-width: 1px;
+  //       margin: 0;
+  //     }
+  //   }
+  // }
   header {
     position: fixed;
     top: 0;
@@ -117,7 +145,8 @@
       position: relative;
 
       .header-bg {
-        border: grey 1px solid;
+        border: grey solid;
+        border-width: 1px;
         border-radius: 0.375rem;
         background: rgba(255, 255, 255, 0.68);
         backdrop-filter: blur(36px) saturate(150%);
@@ -125,28 +154,27 @@
         margin: 1rem 1rem 0;
         position: absolute;
         inset: 0;
+        z-index: 0;
         height: var(--header-height);
       }
 
       .header-content {
-        position: absolute;
-        inset: 0;
+        position: relative;
         z-index: 1;
-        height: calc(
-          var(--header-height) + 2rem
-        ); // Höhe + vertikaler Margin der Hintergrundbox
         ul {
           display: flex;
           gap: 2rem;
-          height: 100%;
-          align-items: center;
+          align-items: flex-start;
 
           li {
             cursor: pointer;
             font-weight: 500;
             color: #333;
-            transition: color 0.2s;
-            padding: 2.5rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            height: calc(var(--header-height) + 2rem);
+            margin-left: 4rem;
 
             &:hover {
               color: #000;

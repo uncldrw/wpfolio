@@ -12,24 +12,22 @@ const { headline, subheadline, ctaLabel, ctaLink, backgroundImage } =
 ---
 
 <section
-  class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white"
+  class="relative flex min-h-screen overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white"
   style={backgroundImage
     ? `background-image: url('${backgroundImage}'); background-size: cover; background-position: center;`
     : undefined}
 >
   {backgroundImage && <div class="absolute inset-0" />}
-  <div class="relative z-10 mx-auto max-w-4xl px-6 text-center">
-    <h1
-      class="mb-6 text-5xl font-extrabold leading-tight tracking-tight md:text-7xl"
-    >
+  <div class="relative z-10 text-left mt-44 mx-12">
+    <h1 class="mb-6 font-medium leading-16 tracking-tight text-6xl max-w-3xl">
       {headline}
     </h1>
-    <p class="mb-10 text-xl text-white/80 md:text-2xl">
+    <p class="mb-10 text-xl text-white/80 md:text-2xl max-w-xl">
       {subheadline}
     </p>
     <a
       href={ctaLink}
-      class="inline-block rounded-full bg-white px-10 py-4 text-lg font-semibold text-indigo-900 shadow-lg transition hover:bg-indigo-100 hover:shadow-xl"
+      class="inline-block rounded-full bg-[var(--color-primary)] px-10 py-4 text-lg font-semibold text-white shadow-lg transition hover:bg-indigo-100 hover:shadow-xl"
     >
       {ctaLabel}
     </a>

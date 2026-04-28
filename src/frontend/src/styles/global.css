@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+/* TT Firs Neue — Variable font (covers all upright weights 100–900) */
+@font-face {
+  font-family: "TT Firs Neue";
+  src:
+    url("/fonts/TTFirsNeue-Variable.ttf") format("truetype-variations"),
+    url("/fonts/TTFirsNeue-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Italic — regular */
+@font-face {
+  font-family: "TT Firs Neue";
+  src: url("/fonts/TTFirsNeue-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Italic — bold */
+@font-face {
+  font-family: "TT Firs Neue";
+  src: url("/fonts/TTFirsNeue-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans:
+    "TT Firs Neue", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+}
+
+:root {
+  --color-primary: oklch(0.7029 0.2417 41.29);
+}
